@@ -1,0 +1,27 @@
+{
+  "name": "@ayudante-virtual/integracion-moodle",
+  "version": "0.1.0",
+  "description": "Integración con Moodle para el Ayudante virtual",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ayudante-virtual/integracion-moodle.git"
+  },
+  "keywords": [
+    "ayudante-virtual",
+    "moodle"
+  ],
+  "author": "Seblaz",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ayudante-virtual/integracion-moodle/issues"
+  },
+  "homepage": "https://github.com/Ayudante-virtual/integracion-moodle#readme",
+  "dependencies": {
+    "moodle-client": "^0.5.2"
+  }
+}
