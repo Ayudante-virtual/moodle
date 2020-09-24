@@ -22,6 +22,8 @@
   },
   "homepage": "https://github.com/Ayudante-virtual/integracion-moodle#readme",
   "dependencies": {
+    "dotenv": "^8.2.0",
+    "esm": "^3.2.25",
     "moodle-client": "^0.5.2"
   }
 }
