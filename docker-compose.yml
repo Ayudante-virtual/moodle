@@ -1,7 +1,7 @@
 version: '2'
 services:
   mariadb:
-    image: 'bitnami/mariadb:10.3-debian-10'
+    build: 'mariadb'
     environment:
       - MARIADB_ROOT_USER=bn_moodle
       - MARIADB_ROOT_PASSWORD=maria_password
@@ -10,7 +10,7 @@ services:
       - 'mariadb_data:/bitnami/mariadb'
 
   moodle:
-    image: 'bitnami/moodle:3.6.1-debian-9'
+    build: 'moodle'
     ports:
       - '8080:80'
       - '8443:443'
@@ -27,10 +27,14 @@ services:
     depends_on:
       - mariadb
 
-#  node:
-#    image: 'node:12.18.3'
-#    volumes:
-#      - ./src/:/app
+  node:
+    image: 'node:12.18.4-alpine3.12'
+    ports:
+      - '5000:5000'
+    volumes:
+      - ./:/app
+    working_dir: '/app'
+    entrypoint: ["npm", "run", "start:dev"]
 
 volumes:
   mariadb_data:

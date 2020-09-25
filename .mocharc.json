@@ -1,0 +1,4 @@
+{
+  "require": "esm, should",
+  "recursive": true
+}
