@@ -4,6 +4,8 @@ services:
 
 install:
   - docker-compose build
+  - docker-compose run node npm install
 
 script:
+  - docker-compose up -d
   - docker-compose exec node npm test
