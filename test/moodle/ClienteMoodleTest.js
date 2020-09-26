@@ -60,18 +60,18 @@ describe('Cliente Moodle', () => {
 
     });
 
-    // describe('Obtener entradas', () => {
-    //     let cliente;
-    //     before(async () => {
-    //         cliente = await ClienteMoodle.build({
-    //             url: process.env.MOODLE_URL,
-    //             token: process.env.MOODLE_TOKEN
-    //         })
-    //     })
-    //
-    //     it('Algo', async () => {
-    //         const result = await cliente.getEntradasDeForo(5)
-    //         console.log(result)
-    //     })
-    // })
+    describe('Obtener entradas', () => {
+        let cliente;
+        before(async () => {
+            cliente = await ClienteMoodle.build({
+                url: process.env.MOODLE_URL,
+                token: process.env.MOODLE_TOKEN
+            })
+        })
+
+        it('Algo', async () => {
+            const result = await cliente.getEntradasDeForo(5)
+            console.log(result)
+        })
+    })
 });
