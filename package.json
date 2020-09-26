@@ -4,7 +4,7 @@
   "description": "Integración con Moodle para el Ayudante virtual",
   "scripts": {
     "start": "node src/index.js",
-    "start:dev": "nodemon src/index.js",
+    "start:dev": "ls -la && ls -la node_modules && ls -la node_modules/.bin && nodemon src/index.js",
     "test": "mocha",
     "test:watch": "mocha --watch --reporter min"
   },
