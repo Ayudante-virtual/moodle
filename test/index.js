@@ -5,10 +5,10 @@ import axios from "axios"
 
 before(async function () {
     config({path: path.resolve(process.cwd(), '.env.test')})
-    this.timeout(15000)
+    this.timeout(25000)
 
     let intentos
-    for (intentos = 20; intentos > 0; intentos--) {
+    for (intentos = 25; intentos > 0; intentos--) {
         try {
             const result = await axios.get(process.env.MOODLE_URL)
             if(result.status === 200) break;
