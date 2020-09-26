@@ -1,0 +1,9 @@
+language: node
+services:
+  - docker
+
+install:
+  - docker-compose build
+
+script:
+  - docker-compose exec node npm test

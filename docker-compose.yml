@@ -28,13 +28,11 @@ services:
       - mariadb
 
   node:
-    image: 'node:12.18.4-alpine3.12'
+    build: 'node'
     ports:
       - '5000:5000'
     volumes:
       - ./:/app
-    working_dir: '/app'
-    entrypoint: ["npm", "run", "start:dev"]
 
 volumes:
   mariadb_data:
