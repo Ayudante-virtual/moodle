@@ -1,31 +1,31 @@
 version: '3.8'
 services:
-#  mariadb:
-#    build: 'mariadb'
-#    environment:
-#      - MARIADB_ROOT_USER=bn_moodle
-#      - MARIADB_ROOT_PASSWORD=maria_password
-#      - MARIADB_DATABASE=moodle
-#    volumes:
-#      - 'mariadb_data:/bitnami/mariadb'
-#
-#  moodle:
-#    build: 'moodle'
-#    ports:
-#      - '8080:80'
-#      - '8443:443'
-#    environment:
-#      - MOODLE_DATABASE_HOST=mariadb
-#      - MOODLE_DATABASE_PORT_NUMBER=3306
-#      - MOODLE_DATABASE_USER=bn_moodle
-#      - MOODLE_DATABASE_PASSWORD=maria_password
-#      - MOODLE_DATABASE_NAME=moodle
-#      - MOODLE_USERNAME=user
-#      - MOODLE_PASSWORD=password
-#    volumes:
-#      - 'moodle_data:/bitnami'
-#    depends_on:
-#      - mariadb
+  mariadb:
+    build: 'mariadb'
+    environment:
+      - MARIADB_ROOT_USER=bn_moodle
+      - MARIADB_ROOT_PASSWORD=maria_password
+      - MARIADB_DATABASE=moodle
+    volumes:
+      - 'mariadb_data:/bitnami/mariadb'
+
+  moodle:
+    build: 'moodle'
+    ports:
+      - '8080:80'
+      - '8443:443'
+    environment:
+      - MOODLE_DATABASE_HOST=mariadb
+      - MOODLE_DATABASE_PORT_NUMBER=3306
+      - MOODLE_DATABASE_USER=bn_moodle
+      - MOODLE_DATABASE_PASSWORD=maria_password
+      - MOODLE_DATABASE_NAME=moodle
+      - MOODLE_USERNAME=user
+      - MOODLE_PASSWORD=password
+    volumes:
+      - 'moodle_data:/bitnami'
+    depends_on:
+      - mariadb
 
   node:
     build:
