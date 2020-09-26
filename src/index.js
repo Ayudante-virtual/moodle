@@ -5,4 +5,4 @@ require = require("esm")(module)
 require('dotenv').config()
 
 // Start.
-module.exports = require("./main.js")
+module.exports = require("./serve.js")

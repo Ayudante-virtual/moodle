@@ -4,7 +4,7 @@
   "description": "Integración con Moodle para el Ayudante virtual",
   "scripts": {
     "start": "node src/index.js",
-    "start:dev": "node node_modules/nodemon/bin/nodemon.js src/index.js",
+    "start:dev": "nodemon src/index.js",
     "test": "mocha",
     "test:watch": "mocha --watch --reporter min"
   },
@@ -25,6 +25,7 @@
   "dependencies": {
     "dotenv": "^8.2.0",
     "esm": "^3.2.25",
+    "express": "^4.17.1",
     "moodle-client": "^0.5.2"
   },
   "devDependencies": {

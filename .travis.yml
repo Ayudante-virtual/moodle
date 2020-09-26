@@ -13,6 +13,6 @@ before_install:
   - docker --version
   - docker-compose --version
 
-install: docker-compose build && npm install && docker-compose up
+install: docker-compose build && docker-compose up
 
-script: sleep 10 && docker-compose exec node npm install
+script: docker-compose exec node npm install
