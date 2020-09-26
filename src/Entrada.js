@@ -4,10 +4,10 @@ export default class Entrada {
     link;
     respuestas;
 
-    constructor(asunto, consulta, link) {
+    constructor({asunto, consulta, link, respuestas}) {
         this.asunto = asunto;
         this.consulta = consulta;
         this.link = link;
-        this.respuestas = [];
+        this.respuestas = respuestas;
     }
 }

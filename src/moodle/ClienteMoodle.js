@@ -1,8 +1,11 @@
 import moodle_client from "moodle-client"
+import htmlToText from "html-to-text";
+
 import ArgumentoRequeridoError from "../utils/ArgumentoRequeridoError";
 import TokenInvalidoError from "../utils/TokenInvalidoError";
 import Entrada from "../Entrada";
-import fs from "fs";
+import ForoInexistenteError from "../utils/ForoInexistenteError";
+
 
 /**
  * Cliente de Moodle para obtener posts de foros.
@@ -48,46 +51,53 @@ class ClienteMoodle {
         })
         if(result.errorcode === 'invalidtoken')
             throw new TokenInvalidoError('El token proporcionado/obtenido es inválido')
-    }
-
-    /**
-     * Devuelve una lista de entradas de un foro.
-     * @param {number} idForo
-     * @returns {Entrada[]}
-     */
-    async getEntradasDeForo(idForo) {
-        // await this._getDiscusionesDeForo(idForo)
-        return [new Entrada()]
+        if(result.errorcode)
+            throw new Error('Ocurrió un error inesperado al conectarse a Moodle')
     }
 
     /**
      * Devuelve una lista de discusiones de un foro
      * @param {number} idForo
+     * @returns {Promise<Entrada[]>}
      * @private
      */
-    async _getDiscusionesDeForo(idForo) {
+    async getEntradasDeForo(idForo) {
         const resultado = await this._moodle.call({
-            wsfunction: "core_webservice_get_site_info",
-            // method: "POST",
-            // args: {
-            //     forumid: idForo,
-            // }
+            wsfunction: "mod_forum_get_forum_discussions_paginated",
+            method: "POST",
+            args: {
+                forumid: idForo,
+            }
         })
-        console.log(resultado);
-        //     .then(function(info) {
-        //     console.log(info);
-        //     fs.writeFileSync(
-        //         './posts.json',
-        //         JSON.stringify(info),
-        //         function (err) {
-        //             if (err) {
-        //                 console.error('Crap happens');
-        //             }
-        //         }
-        //     );
-        // });
+        if(resultado.errorcode === 'invalidrecord')
+            throw new ForoInexistenteError(`El foro con id ${idForo} no existe`)
+        if(resultado.errorcode)
+            throw new Error(`Ocurrió un error inesperado al leer las discusiones del foro con id ${idForo}`)
+
+        return Promise.all(resultado.discussions.map(async discusion => new Entrada({
+            asunto: discusion.subject,
+            consulta: htmlToText.fromString(discusion.message),
+            link: `${process.env.MOODLE_URL}/mod/forum/discuss.php?d=${discusion.discussion}`,
+            respuestas: await this._getPostsDeDiscusion(discusion.discussion)
+        })));
     }
 
+    /**
+     * Devuelve las respuestas de una discusión.
+     * @param {number} idDiscusion
+     * @returns {Promise<string[]>}
+     * @private
+     */
+    async _getPostsDeDiscusion(idDiscusion) {
+        const resultado = await this._moodle.call({
+            wsfunction: "mod_forum_get_forum_discussion_posts",
+            method: "POST",
+            args: {
+                discussionid: idDiscusion,
+            }
+        })
+        return resultado.posts.map(post => htmlToText.fromString(post.message));
+    }
 }
 
 const build = async (args) => {

@@ -1,7 +1,9 @@
-import {describe, it, before} from "mocha";
+import {describe, it, beforeEach} from "mocha";
 import ClienteMoodle from "../../src/moodle/ClienteMoodle";
 import ArgumentoRequeridoError from "../../src/utils/ArgumentoRequeridoError";
 import TokenInvalidoError from "../../src/utils/TokenInvalidoError";
+import ForoInexistenteError from "../../src/utils/ForoInexistenteError";
+import Entrada from "../../src/Entrada";
 
 
 describe('Cliente Moodle', () => {
@@ -60,18 +62,51 @@ describe('Cliente Moodle', () => {
 
     });
 
-    describe('Obtener entradas', () => {
+    describe('Leer foro', () => {
         let cliente;
-        before(async () => {
+        beforeEach(async () => {
             cliente = await ClienteMoodle.build({
                 url: process.env.MOODLE_URL,
                 token: process.env.MOODLE_TOKEN
             })
         })
 
-        it('Algo', async () => {
-            const result = await cliente.getEntradasDeForo(5)
-            console.log(result)
+        it('Eleva una excepción si no existe el foro', async () => {
+            return cliente.getEntradasDeForo(57895)
+                .should.be.rejectedWith(ForoInexistenteError)
+        })
+
+        it('Obtiene las discusiones de un foro correctamente', async () => {
+            const result = await cliente.getEntradasDeForo(1)
+            result.should.be.eql([
+                    new Entrada({
+                        asunto: 'Consulta sin respuesta',
+                        consulta: 'Mensaje de la consulta de prueba sin respuesta',
+                        link: 'http://moodle/mod/forum/discuss.php?d=3',
+                        respuestas: [ 'Mensaje de la consulta de prueba sin respuesta' ]
+                    }),
+                    new Entrada({
+                        asunto: 'Segunda consulta de prueba',
+                        consulta: 'Consulta de prueba número dos',
+                        link: 'http://moodle/mod/forum/discuss.php?d=2',
+                        respuestas: [
+                            'Respuesta de la segunda consulta de prueba',
+                            'Consulta de prueba número dos'
+                        ]
+                    }),
+                    new Entrada({
+                        asunto: 'Consulta de prueba',
+                        consulta: 'Mensaje de la consulta de prueba',
+                        link: 'http://moodle/mod/forum/discuss.php?d=1',
+                        respuestas: [
+                            'Respuesta anidada',
+                            'Segunda respuesta a la consulta de prueba',
+                            'Respuesta de la consulta de prueba',
+                            'Mensaje de la consulta de prueba'
+                        ]
+                    })
+                ]
+            )
         })
     })
 });
