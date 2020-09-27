@@ -2,13 +2,15 @@ import express from "express"
 import moodle from "./moodle";
 import ServidorMoodleNoDisponibleError from "./utils/ServidorMoodleNoDisponibleError";
 
-const iniciarBuscadorMoodle = async () => {
+const buscadorMoodle = (async () => {
     console.log('Iniciando buscador de moodle...')
     let buscadorMoodle
     let intentos
-    for (intentos = 25; intentos > 0; intentos--) {
+    for (intentos = 30; intentos > 0; intentos--) {
         try {
             buscadorMoodle = await moodle();
+            console.log('Buscador de moodle iniciado')
+            return buscadorMoodle;
         } catch (e) {
             if (e instanceof ServidorMoodleNoDisponibleError) {
                 console.log(`Esperando a Moodle... ${intentos} intentos restantes`)
@@ -18,10 +20,9 @@ const iniciarBuscadorMoodle = async () => {
             }
         }
     }
-    console.log('Buscador de moodle iniciado')
-    return buscadorMoodle;
-}
-const buscadorMoodle = await iniciarBuscadorMoodle()
+    throw Error('El servidor de Moodle está inactivo')
+})()
+
 const app = express();
 
 app.use(express.json())

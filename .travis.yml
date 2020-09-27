@@ -16,6 +16,7 @@ before_install:
   - docker-compose --version
 
 install:
+  - cp .env.test .env
   - docker-compose build
   - npm install
   - docker-compose -f docker-compose.yml -f docker-compose.travis.yml up -d
