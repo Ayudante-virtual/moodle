@@ -1,5 +1,5 @@
 // ES6 import support.
-require = require("esm")(module)
+require = require("esm")(module, {"await": true})
 
 // Load env variables.
 require('dotenv').config()

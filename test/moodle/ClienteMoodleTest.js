@@ -8,15 +8,13 @@ import EntradaMoodle from "../../src/moodle/EntradaMoodle";
 
 describe('Cliente Moodle', () => {
     describe('Creación', () => {
-        const params = [
+        [
             undefined,
             {},
             {url: process.env.MOODLE_URL},
             {url: process.env.MOODLE_URL, usuario: 'un usuario'},
             {url: process.env.MOODLE_URL, clave: 'una clave'},
-        ]
-
-        params.forEach(param => {
+        ].forEach(param => {
             it('Eleva una excepción si no se proveen las opciones requeridas.', () => {
                 return ClienteMoodle.build(param).should.be.rejectedWith(ArgumentoRequeridoError)
             });

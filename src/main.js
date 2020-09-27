@@ -20,10 +20,10 @@ const moodleConfig = process.env.MOODLE_TOKEN ? {
 moodleConfig.wwwroot = process.env.MOODLE_URL
 
 moodle_client.init(moodleConfig).then(async function(client) {
-    await get_info(client);
+    // await get_info(client);
     // get_courses(client);
     // get_course_forums(client);
-    // get_forum_discussions(client);
+    get_forum_discussions(client);
     // get_discusion_posts(client);
 }).catch(function(err) {
     console.log("Unable to initialize the client: " + err);
@@ -76,15 +76,15 @@ function get_forum_discussions(client) {
         }
     }).then(function(info) {
         console.log(info);
-        fs.writeFileSync(
-            './posts.json',
-            JSON.stringify(info),
-            function (err) {
-                if (err) {
-                    console.error('Crap happens');
-                }
-            }
-        );
+        // fs.writeFileSync(
+        //     './posts.json',
+        //     JSON.stringify(info),
+        //     function (err) {
+        //         if (err) {
+        //             console.error('Crap happens');
+        //         }
+        //     }
+        // );
     });
 }
 

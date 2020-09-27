@@ -101,6 +101,11 @@ class ClienteMoodle {
     }
 }
 
+/**
+ *
+ * @param {{url:string, token:string, usuario:string, clave:string}} args
+ * @returns {Promise<ClienteMoodle>}
+ */
 const build = async (args) => {
     const cliente = new ClienteMoodle(args)
     await cliente._init()

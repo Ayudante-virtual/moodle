@@ -2,6 +2,7 @@ import lunr from "lunr"
 import stemmer from "lunr-languages/lunr.stemmer.support"
 import spanish from "lunr-languages/lunr.es"
 import {Respuesta} from "../Respuesta";
+import BusquedaInvalidaError from "../utils/BusquedaInvalidaError";
 
 stemmer(lunr)
 spanish(lunr)
@@ -16,7 +17,7 @@ export default class BuscadorMoodle {
      */
     constructor({entradas}) {
         this._guardarEntradas(entradas)
-        this.index = lunr(function() {
+        this.index = lunr(function () {
             this.use(lunr.es)
             this.ref('id')
             this.field('asunto', {boost: 2})
@@ -52,16 +53,23 @@ export default class BuscadorMoodle {
     /**
      * Busca las entradas que coinciden con consulta. Devuelve una
      * lista de respuestas.
-     * @param {string} consulta
+     * @param {string} busqueda: texto a buscar
+     * @param {number} max: máxima cantidad de resultados
      * @returns {Respuesta[]}
      */
-    buscar(consulta) {
-        return this.index.search(consulta).map(resultado => {
-            const entrada = this._getEntrada(parseInt(resultado.ref))
-            return new Respuesta({
-                resumen: entrada.consulta,
-                link: entrada.link
+    async buscar({busqueda, max = 3}) {
+        if(!busqueda.trim())
+            throw new BusquedaInvalidaError('La búsqueda no debe estar vacía')
+
+        return this.index
+            .search(busqueda)
+            .map(resultado => {
+                const entrada = this._getEntrada(parseInt(resultado.ref))
+                return new Respuesta({
+                    resumen: entrada.consulta,
+                    link: entrada.link
+                })
             })
-        })
+            .slice(0, max)
     }
 }

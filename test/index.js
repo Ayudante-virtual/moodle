@@ -20,3 +20,5 @@ before(async function () {
     if(intentos === 0)
         throw new Error('Moodle está inactivo, no se puede continuar con los tests')
 });
+
+// this.timeout(3000)
