@@ -3,7 +3,7 @@ import ClienteMoodle from "../../src/moodle/ClienteMoodle";
 import ArgumentoRequeridoError from "../../src/utils/ArgumentoRequeridoError";
 import TokenInvalidoError from "../../src/utils/TokenInvalidoError";
 import ForoInexistenteError from "../../src/utils/ForoInexistenteError";
-import Entrada from "../../src/Entrada";
+import EntradaMoodle from "../../src/moodle/EntradaMoodle";
 
 
 describe('Cliente Moodle', () => {
@@ -79,13 +79,15 @@ describe('Cliente Moodle', () => {
         it('Obtiene las discusiones de un foro correctamente', async () => {
             const result = await cliente.getEntradasDeForo(1)
             result.should.be.eql([
-                    new Entrada({
+                    new EntradaMoodle({
+                        id: 7,
                         asunto: 'Consulta sin respuesta',
                         consulta: 'Mensaje de la consulta de prueba sin respuesta',
                         link: 'http://moodle/mod/forum/discuss.php?d=3',
                         respuestas: [ 'Mensaje de la consulta de prueba sin respuesta' ]
                     }),
-                    new Entrada({
+                    new EntradaMoodle({
+                        id: 5,
                         asunto: 'Segunda consulta de prueba',
                         consulta: 'Consulta de prueba número dos',
                         link: 'http://moodle/mod/forum/discuss.php?d=2',
@@ -94,7 +96,8 @@ describe('Cliente Moodle', () => {
                             'Consulta de prueba número dos'
                         ]
                     }),
-                    new Entrada({
+                    new EntradaMoodle({
+                        id: 1,
                         asunto: 'Consulta de prueba',
                         consulta: 'Mensaje de la consulta de prueba',
                         link: 'http://moodle/mod/forum/discuss.php?d=1',

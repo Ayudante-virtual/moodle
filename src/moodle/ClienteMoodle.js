@@ -3,7 +3,7 @@ import htmlToText from "html-to-text";
 
 import ArgumentoRequeridoError from "../utils/ArgumentoRequeridoError";
 import TokenInvalidoError from "../utils/TokenInvalidoError";
-import Entrada from "../Entrada";
+import EntradaMoodle from "./EntradaMoodle";
 import ForoInexistenteError from "../utils/ForoInexistenteError";
 
 
@@ -58,7 +58,7 @@ class ClienteMoodle {
     /**
      * Devuelve una lista de discusiones de un foro
      * @param {number} idForo
-     * @returns {Promise<Entrada[]>}
+     * @returns {Promise<EntradaMoodle[]>}
      * @private
      */
     async getEntradasDeForo(idForo) {
@@ -74,7 +74,8 @@ class ClienteMoodle {
         if(resultado.errorcode)
             throw new Error(`Ocurrió un error inesperado al leer las discusiones del foro con id ${idForo}`)
 
-        return Promise.all(resultado.discussions.map(async discusion => new Entrada({
+        return Promise.all(resultado.discussions.map(async discusion => new EntradaMoodle({
+            id: discusion.id,
             asunto: discusion.subject,
             consulta: htmlToText.fromString(discusion.message),
             link: `${process.env.MOODLE_URL}/mod/forum/discuss.php?d=${discusion.discussion}`,

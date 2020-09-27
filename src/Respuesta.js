@@ -1,6 +1,9 @@
 export class Respuesta {
-    constructor(consulta, link) {
-        this.consulta = consulta;
+    resumen;
+    link;
+
+    constructor({resumen, link}) {
+        this.resumen = resumen;
         this.link = link;
     }
 }

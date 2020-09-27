@@ -27,6 +27,8 @@
     "esm": "^3.2.25",
     "express": "^4.17.1",
     "html-to-text": "^5.1.1",
+    "lunr": "^2.3.9",
+    "lunr-languages": "^1.4.0",
     "moodle-client": "^0.5.2"
   },
   "devDependencies": {

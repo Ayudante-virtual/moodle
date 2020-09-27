@@ -1,11 +1,33 @@
-import fs from "fs"
+import lunr from "lunr"
+import stemmer from "lunr-languages/lunr.stemmer.support"
+import spanish from "lunr-languages/lunr.es"
+import {Respuesta} from "../Respuesta";
+
+stemmer(lunr)
+spanish(lunr)
 
 export default class BuscadorMoodle {
+    index;
+    entradas;
 
-    constructor(indexPath) {
-        this.index = lunr.Index.load(
-            JSON.parse(fs.readFileSync(indexPath, {encoding: "utf-8"}))
-        )
+    /**
+     * @param {string} rutaIndice
+     * @param {EntradaMoodle[]} entradas
+     */
+    constructor({entradas}) {
+        this.entradas = entradas
+        this.index = lunr(function() {
+            this.use(lunr.es)
+            this.ref('id')
+            this.field('asunto', {boost: 2})
+            this.field('respuestas')
+            entradas.forEach(function (entrada) {
+                this.add({
+                    ...entrada,
+                    respuestas: entrada.respuestas.join('. ')
+                })
+            }, this)
+        })
     }
 
     /**
@@ -15,6 +37,23 @@ export default class BuscadorMoodle {
      * @returns {Respuesta[]}
      */
     buscar(consulta) {
-        return this.index.search(consulta)
+        return this.index.search(consulta).map(resultado => {
+            const entrada = this._getEntrada(resultado.ref)
+            return new Respuesta({
+                resumen: entrada.consulta,
+                link: entrada.link
+            })
+        })
+    }
+
+    /**
+     * Devuelve una entrada a partir de su id.
+     * @param {string} idEntrada
+     * @returns {EntradaMoodle}
+     * @private
+     */
+    _getEntrada(idEntrada) {
+        idEntrada = parseInt(idEntrada)
+        return this.entradas.find(entrada => entrada.id === idEntrada)
     }
 }
