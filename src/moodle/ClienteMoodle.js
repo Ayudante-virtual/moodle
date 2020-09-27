@@ -91,7 +91,10 @@ class ClienteMoodle {
             .process(async discusion => new EntradaMoodle({
                 id: discusion.id,
                 asunto: discusion.subject,
-                consulta: htmlToText.fromString(discusion.message),
+                consulta: htmlToText.fromString(discusion.message, {
+                    wordwrap: false,
+                    singleNewLineParagraphs: true
+                }),
                 link: `${process.env.MOODLE_URL}/mod/forum/discuss.php?d=${discusion.discussion}`,
                 respuestas: await this._getPostsDeDiscusion(discusion.discussion)
             }))
@@ -113,7 +116,10 @@ class ClienteMoodle {
                 discussionid: idDiscusion,
             }
         })
-        return resultado.posts.map(post => htmlToText.fromString(post.message));
+        return resultado.posts.map(post => htmlToText.fromString(post.message, {
+            wordwrap: false,
+            singleNewLineParagraphs: true
+        }));
     }
 }
 
