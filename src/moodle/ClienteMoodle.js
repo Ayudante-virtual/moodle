@@ -1,12 +1,13 @@
 import moodle_client from "moodle-client"
-import htmlToText from "html-to-text";
+import htmlToText from "html-to-text"
+import PromisePool from "@supercharge/promise-pool"
 
-import ArgumentoRequeridoError from "../utils/ArgumentoRequeridoError";
-import TokenInvalidoError from "../utils/TokenInvalidoError";
-import EntradaMoodle from "./EntradaMoodle";
-import ForoInexistenteError from "../utils/ForoInexistenteError";
-import ServidorMoodleNoDisponibleError from "../utils/ServidorMoodleNoDisponibleError";
-import AutenticacionInvalidaError from "../utils/AutenticacionInvalidaError";
+import ArgumentoRequeridoError from "../utils/ArgumentoRequeridoError"
+import TokenInvalidoError from "../utils/TokenInvalidoError"
+import EntradaMoodle from "./EntradaMoodle"
+import ForoInexistenteError from "../utils/ForoInexistenteError"
+import ServidorMoodleNoDisponibleError from "../utils/ServidorMoodleNoDisponibleError"
+import AutenticacionInvalidaError from "../utils/AutenticacionInvalidaError"
 
 
 /**
@@ -42,9 +43,9 @@ class ClienteMoodle {
             this._moodle = await moodle_client.init(this._config)
             await this._testConnection()
         } catch (e) {
-            if(e.name === 'RequestError')
+            if (e.name === 'RequestError')
                 throw new ServidorMoodleNoDisponibleError('El servidor de Moodle no se encuentra disponible')
-            if(e.message.includes('authentication failed'))
+            if (e.message.includes('authentication failed'))
                 throw new AutenticacionInvalidaError('No fue posible autenticarse a Moodle')
             throw e
         }
@@ -59,9 +60,9 @@ class ClienteMoodle {
         const result = await this._moodle.call({
             wsfunction: "core_webservice_get_site_info",
         })
-        if(result.errorcode === 'invalidtoken')
+        if (result.errorcode === 'invalidtoken')
             throw new TokenInvalidoError('El token proporcionado/obtenido es inválido')
-        if(result.errorcode)
+        if (result.errorcode)
             throw new Error('Ocurrió un error inesperado al conectarse a Moodle')
     }
 
@@ -79,18 +80,23 @@ class ClienteMoodle {
                 forumid: idForo,
             }
         })
-        if(resultado.errorcode === 'invalidrecord')
+        if (resultado.errorcode === 'invalidrecord')
             throw new ForoInexistenteError(`El foro con id ${idForo} no existe`)
-        if(resultado.errorcode)
+        if (resultado.errorcode)
             throw new Error(`Ocurrió un error inesperado al leer las discusiones del foro con id ${idForo}`)
 
-        return Promise.all(resultado.discussions.map(async discusion => new EntradaMoodle({
-            id: discusion.id,
-            asunto: discusion.subject,
-            consulta: htmlToText.fromString(discusion.message),
-            link: `${process.env.MOODLE_URL}/mod/forum/discuss.php?d=${discusion.discussion}`,
-            respuestas: await this._getPostsDeDiscusion(discusion.discussion)
-        })));
+        const {results, errors} = await PromisePool
+            .withConcurrency(10)
+            .for(resultado.discussions)
+            .process(async discusion => new EntradaMoodle({
+                id: discusion.id,
+                asunto: discusion.subject,
+                consulta: htmlToText.fromString(discusion.message),
+                link: `${process.env.MOODLE_URL}/mod/forum/discuss.php?d=${discusion.discussion}`,
+                respuestas: await this._getPostsDeDiscusion(discusion.discussion)
+            }))
+
+        return results;
     }
 
     /**
@@ -112,8 +118,6 @@ class ClienteMoodle {
 }
 
 /**
- *
- * @param {{url:string, token:string, usuario:string, clave:string}} args
  * @returns {Promise<ClienteMoodle>}
  */
 const build = async (args) => {

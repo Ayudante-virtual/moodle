@@ -2,7 +2,7 @@ import express from "express"
 import moodle from "./moodle";
 import ServidorMoodleNoDisponibleError from "./utils/ServidorMoodleNoDisponibleError";
 
-const buscadorMoodle = (async () => {
+const buscadorMoodle = await (async () => {
     console.log('Iniciando buscador de moodle...')
     let buscadorMoodle
     let intentos
@@ -27,11 +27,11 @@ const app = express();
 
 app.use(express.json())
 
-app.get('/v1/consultas', (req, res) => {
+app.get('/v1/consultas', async (req, res) => {
     const {busqueda, max = 3} = req.query;
     if (!busqueda)
         return res.status(400).send({error: 'Se debe incluir la búsqueda'})
-    const respuestas = buscadorMoodle.buscar({busqueda, max})
+    const respuestas = await buscadorMoodle.buscar({busqueda, max})
     res.status(200).send(respuestas)
 })
 

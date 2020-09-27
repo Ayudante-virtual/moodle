@@ -1,6 +1,9 @@
 {
   "name": "@ayudante-virtual/integracion-moodle",
   "version": "0.1.0",
+  "engines": {
+    "node": ">=12"
+  },
   "description": "Integración con Moodle para el Ayudante virtual",
   "scripts": {
     "start": "node src/index.js",
@@ -23,6 +26,7 @@
   },
   "homepage": "https://github.com/Ayudante-virtual/integracion-moodle#readme",
   "dependencies": {
+    "@supercharge/promise-pool": "^1.5.0",
     "dotenv": "^8.2.0",
     "esm": "^3.2.25",
     "express": "^4.17.1",
