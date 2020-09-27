@@ -15,7 +15,7 @@ export default class BuscadorMoodle {
      * @param {EntradaMoodle[]} entradas
      */
     constructor({entradas}) {
-        this.entradas = entradas
+        this._guardarEntradas(entradas)
         this.index = lunr(function() {
             this.use(lunr.es)
             this.ref('id')
@@ -31,6 +31,25 @@ export default class BuscadorMoodle {
     }
 
     /**
+     * Guarda las entrdas indexándolas por id.
+     * @param {EntradaMoodle[]} entradas
+     * @private
+     */
+    _guardarEntradas(entradas) {
+        this.entradas = new Map(entradas.map(entrada => [entrada.id, entrada]))
+    }
+
+    /**
+     * Devuelve una entrada a partir de su id.
+     * @param {number} idEntrada
+     * @returns {EntradaMoodle}
+     * @private
+     */
+    _getEntrada(idEntrada) {
+        return this.entradas.get(idEntrada)
+    }
+
+    /**
      * Busca las entradas que coinciden con consulta. Devuelve una
      * lista de respuestas.
      * @param {string} consulta
@@ -38,22 +57,11 @@ export default class BuscadorMoodle {
      */
     buscar(consulta) {
         return this.index.search(consulta).map(resultado => {
-            const entrada = this._getEntrada(resultado.ref)
+            const entrada = this._getEntrada(parseInt(resultado.ref))
             return new Respuesta({
                 resumen: entrada.consulta,
                 link: entrada.link
             })
         })
-    }
-
-    /**
-     * Devuelve una entrada a partir de su id.
-     * @param {string} idEntrada
-     * @returns {EntradaMoodle}
-     * @private
-     */
-    _getEntrada(idEntrada) {
-        idEntrada = parseInt(idEntrada)
-        return this.entradas.find(entrada => entrada.id === idEntrada)
     }
 }
