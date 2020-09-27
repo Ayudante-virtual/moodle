@@ -1,6 +1,6 @@
 import {describe, it, beforeEach} from "mocha";
-import EntradaMoodle from "../src/moodle/EntradaMoodle";
-import BuscadorMoodle from "../src/moodle/BuscadorMoodle";
+import EntradaMoodle from "../../src/moodle/EntradaMoodle";
+import BuscadorMoodle from "../../src/moodle/BuscadorMoodle";
 
 describe('BuscadorMoodle', () => {
     describe('Buscar', () => {
