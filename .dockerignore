@@ -1,0 +1,13 @@
+mariadb
+moodle
+node
+node_modules
+test
+.env
+.env.test
+.gitignore
+.mocharc.json
+.travis.yml
+docker-compose.travis.yml
+docker-compose.yml
+README.md
