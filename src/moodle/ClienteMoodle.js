@@ -5,6 +5,8 @@ import ArgumentoRequeridoError from "../utils/ArgumentoRequeridoError";
 import TokenInvalidoError from "../utils/TokenInvalidoError";
 import EntradaMoodle from "./EntradaMoodle";
 import ForoInexistenteError from "../utils/ForoInexistenteError";
+import ServidorMoodleNoDisponibleError from "../utils/ServidorMoodleNoDisponibleError";
+import AutenticacionInvalidaError from "../utils/AutenticacionInvalidaError";
 
 
 /**
@@ -36,8 +38,16 @@ class ClienteMoodle {
      * @private
      */
     async _init() {
-        this._moodle = await moodle_client.init(this._config)
-        await this._testConnection()
+        try {
+            this._moodle = await moodle_client.init(this._config)
+            await this._testConnection()
+        } catch (e) {
+            if(e.name === 'RequestError')
+                throw new ServidorMoodleNoDisponibleError('El servidor de Moodle no se encuentra disponible')
+            if(e.message.includes('authentication failed'))
+                throw new AutenticacionInvalidaError('No fue posible autenticarse a Moodle')
+            throw e
+        }
     }
 
     /**
@@ -64,7 +74,7 @@ class ClienteMoodle {
     async getEntradasDeForo(idForo) {
         const resultado = await this._moodle.call({
             wsfunction: "mod_forum_get_forum_discussions_paginated",
-            method: "POST",
+            method: "GET",
             args: {
                 forumid: idForo,
             }
@@ -92,7 +102,7 @@ class ClienteMoodle {
     async _getPostsDeDiscusion(idDiscusion) {
         const resultado = await this._moodle.call({
             wsfunction: "mod_forum_get_forum_discussion_posts",
-            method: "POST",
+            method: "GET",
             args: {
                 discussionid: idDiscusion,
             }

@@ -4,6 +4,8 @@ import ArgumentoRequeridoError from "../../src/utils/ArgumentoRequeridoError";
 import TokenInvalidoError from "../../src/utils/TokenInvalidoError";
 import ForoInexistenteError from "../../src/utils/ForoInexistenteError";
 import EntradaMoodle from "../../src/moodle/EntradaMoodle";
+import ServidorMoodleNoDisponibleError from "../../src/utils/ServidorMoodleNoDisponibleError";
+import AutenticacionInvalidaError from "../../src/utils/AutenticacionInvalidaError";
 
 
 describe('Cliente Moodle', () => {
@@ -25,7 +27,7 @@ describe('Cliente Moodle', () => {
                 url: 'http://una-url',
                 usuario: 'un usuario',
                 clave: 'una clave'
-            }).should.be.rejected()
+            }).should.be.rejectedWith(ServidorMoodleNoDisponibleError)
         });
 
         it('Eleva una excepción con usuario y clave incorrectas', () => {
@@ -33,7 +35,7 @@ describe('Cliente Moodle', () => {
                 url: process.env.MOODLE_URL,
                 usuario: 'un usuario',
                 clave: 'una clave'
-            }).should.be.rejectedWith(/authentication failed/)
+            }).should.be.rejectedWith(AutenticacionInvalidaError)
         });
 
         it('Eleva una excepción con token incorrecto', () => {
@@ -57,7 +59,6 @@ describe('Cliente Moodle', () => {
                 token: process.env.MOODLE_TOKEN
             }).should.not.be.rejected()
         });
-
     });
 
     describe('Leer foro', () => {
