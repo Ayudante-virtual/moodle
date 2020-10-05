@@ -62,7 +62,9 @@ export default class BuscadorMoodle {
             throw new BusquedaInvalidaError('La búsqueda no debe estar vacía')
 
         return this.index
-            .search(busqueda)
+            .query(query => {
+                query.term(busqueda)
+            })
             .map(resultado => {
                 const entrada = this._getEntrada(parseInt(resultado.ref))
                 return new Respuesta({

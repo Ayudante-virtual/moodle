@@ -78,5 +78,11 @@ describe('BuscadorMoodle', () => {
             const respuestas = buscador.buscar({busqueda: 'mono', max: 1})
             respuestas.should.eventually.have.length(1)
         });
+
+        it('No eleva un error si la busqueda contiene modificadores de lunr', () => {
+            return buscador.buscar({
+                busqueda: 'una : a^as #'
+            }).should.not.be.rejected()
+        });
     })
 })
