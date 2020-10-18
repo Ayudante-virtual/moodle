@@ -45,7 +45,8 @@ describe('Cliente Moodle', () => {
             }).should.be.rejectedWith(TokenInvalidoError)
         });
 
-        it('No eleva una excepción si el usuario y la clave son correctas', () => {
+        it('No eleva una excepción si el usuario y la clave son correctas', function () {
+            this.timeout(3000)
             return ClienteMoodle.build({
                 url: process.env.MOODLE_URL,
                 usuario: process.env.MOODLE_USER,
@@ -61,12 +62,50 @@ describe('Cliente Moodle', () => {
         });
     });
 
-    describe('Leer foro', () => {
+    describe('Leer foro', function () {
         let cliente;
+        let consulta_sin_respuesta;
+        let segunda_consulta;
+        let consulta_de_prueba;
+
+        this.timeout(3000)
+
         beforeEach(async () => {
             cliente = await ClienteMoodle.build({
                 url: process.env.MOODLE_URL,
                 token: process.env.MOODLE_TOKEN
+            })
+
+            consulta_sin_respuesta = new EntradaMoodle({
+                id: 7,
+                asunto: 'Consulta sin respuesta',
+                consulta: 'Mensaje de la consulta de prueba sin respuesta',
+                link: 'http://moodle/mod/forum/discuss.php?d=3',
+                respuestas: ['Mensaje de la consulta de prueba sin respuesta']
+            })
+
+            segunda_consulta = new EntradaMoodle({
+                id: 5,
+                asunto: 'Segunda consulta de prueba',
+                consulta: 'Consulta de prueba número dos',
+                link: 'http://moodle/mod/forum/discuss.php?d=2',
+                respuestas: [
+                    'Respuesta de la segunda consulta de prueba',
+                    'Consulta de prueba número dos'
+                ]
+            })
+
+            consulta_de_prueba = new EntradaMoodle({
+                id: 1,
+                asunto: 'Consulta de prueba',
+                consulta: 'Mensaje de la consulta de prueba',
+                link: 'http://moodle/mod/forum/discuss.php?d=1',
+                respuestas: [
+                    'Respuesta anidada',
+                    'Segunda respuesta a la consulta de prueba',
+                    'Respuesta de la consulta de prueba',
+                    'Mensaje de la consulta de prueba'
+                ]
             })
         })
 
@@ -77,41 +116,18 @@ describe('Cliente Moodle', () => {
 
         it('Obtiene las discusiones de un foro correctamente', async () => {
             const result = await cliente.getEntradasDeForo(1)
-            result.should.containEql(
-                new EntradaMoodle({
-                    id: 7,
-                    asunto: 'Consulta sin respuesta',
-                    consulta: 'Mensaje de la consulta de prueba sin respuesta',
-                    link: 'http://moodle/mod/forum/discuss.php?d=3',
-                    respuestas: ['Mensaje de la consulta de prueba sin respuesta']
-                }),
-            )
-            result.should.containEql(
-                new EntradaMoodle({
-                    id: 5,
-                    asunto: 'Segunda consulta de prueba',
-                    consulta: 'Consulta de prueba número dos',
-                    link: 'http://moodle/mod/forum/discuss.php?d=2',
-                    respuestas: [
-                        'Respuesta de la segunda consulta de prueba',
-                        'Consulta de prueba número dos'
-                    ]
-                }),
-            )
-            result.should.containEql(
-                new EntradaMoodle({
-                    id: 1,
-                    asunto: 'Consulta de prueba',
-                    consulta: 'Mensaje de la consulta de prueba',
-                    link: 'http://moodle/mod/forum/discuss.php?d=1',
-                    respuestas: [
-                        'Respuesta anidada',
-                        'Segunda respuesta a la consulta de prueba',
-                        'Respuesta de la consulta de prueba',
-                        'Mensaje de la consulta de prueba'
-                    ]
-                })
-            )
+            result.should.have.size(3)
+            result.should.containEql(consulta_sin_respuesta)
+            result.should.containEql(segunda_consulta)
+            result.should.containEql(consulta_de_prueba)
+        })
+
+        it('Obtiene las discusiones de un foro a partir de una determinada fecha', async () => {
+            const from = new Date('Fri, 25 Sep 2020, 19:30 GMT-0300')
+            const result = await cliente.getEntradasDeForo(1, from)
+            result.should.have.size(2)
+            result.should.containEql(consulta_sin_respuesta)
+            result.should.containEql(segunda_consulta)
         })
     })
 });

@@ -8,7 +8,7 @@
   "scripts": {
     "start": "node src/index.js",
     "start:dev": "nodemon src/index.js",
-    "test": "mocha",
+    "test": "mocha --file test/index.js",
     "test:watch": "mocha --watch --reporter min"
   },
   "repository": {
@@ -33,6 +33,7 @@
     "html-to-text": "^5.1.1",
     "lunr": "^2.3.9",
     "lunr-languages": "^1.4.0",
+    "sonic-channel": "^1.2.6",
     "moodle-client": "^0.5.2"
   },
   "devDependencies": {

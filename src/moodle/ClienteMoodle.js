@@ -17,6 +17,14 @@ class ClienteMoodle {
     _moodle
     _config
 
+    /**
+     * Se debe llamar a init antes de realizar otra acción.
+     * Es obligatorio incluir el token o (el usuario y la contraseña).
+     * @param url {string}
+     * @param token {?string}
+     * @param usuario {?string}
+     * @param clave {?string}
+     */
     constructor({url, token = null, usuario = null, clave = null} = {}) {
         if (!url)
             throw new ArgumentoRequeridoError('Se debe proporcionar la url del servidor Moodle')
@@ -38,7 +46,7 @@ class ClienteMoodle {
      * @returns {Promise<void>}
      * @private
      */
-    async _init() {
+    async init() {
         try {
             this._moodle = await moodle_client.init(this._config)
             await this._testConnection()
@@ -69,25 +77,31 @@ class ClienteMoodle {
     /**
      * Devuelve una lista de discusiones de un foro
      * @param {number} idForo
+     * @param {?Date} ultima_modificiacion_desde devuelve las entradas
+     * que fueron modificadas desde dicha fecha.
      * @returns {Promise<EntradaMoodle[]>}
      * @private
      */
-    async getEntradasDeForo(idForo) {
-        const resultado = await this._moodle.call({
-            wsfunction: "mod_forum_get_forum_discussions_paginated",
-            method: "GET",
-            args: {
-                forumid: idForo,
-            }
-        })
-        if (resultado.errorcode === 'invalidrecord')
-            throw new ForoInexistenteError(`El foro con id ${idForo} no existe`)
-        if (resultado.errorcode)
-            throw new Error(`Ocurrió un error inesperado al leer las discusiones del foro con id ${idForo}`)
+    async getEntradasDeForo(idForo, ultima_modificiacion_desde = null) {
+        let discusiones = await this._getDiscusiones(idForo)
+        discusiones = this._filtrarDiscusiones(
+            discusiones,
+            ultima_modificiacion_desde
+        )
+        return await this._getEntradas(discusiones)
+    }
 
+    /**
+     * Devuelve las entradas del foro correspondientes a las
+     * discusiones.
+     * @param discusiones
+     * @returns {Promise<EntradaMoodle[]>}
+     * @private
+     */
+    async _getEntradas(discusiones) {
         const {results, errors} = await PromisePool
             .withConcurrency(10)
-            .for(resultado.discussions)
+            .for(discusiones)
             .process(async discusion => new EntradaMoodle({
                 id: discusion.id,
                 asunto: discusion.subject,
@@ -100,6 +114,43 @@ class ClienteMoodle {
             }))
 
         return results;
+    }
+
+    /**
+     * Devuelve las discusiones de un foro.
+     * @param idForo
+     * @returns {Promise<Object[]>}
+     * @throws ForoInexistenteError
+     * @throws Error
+     * @private
+     */
+    async _getDiscusiones(idForo) {
+        const resultado = await this._moodle.call({
+            wsfunction: "mod_forum_get_forum_discussions_paginated",
+            method: "GET",
+            args: {
+                forumid: idForo,
+            }
+        })
+        if (resultado.errorcode === 'invalidrecord')
+            throw new ForoInexistenteError(`El foro con id ${idForo} no existe`)
+        if (resultado.errorcode)
+            throw new Error(`Ocurrió un error inesperado al leer las discusiones del foro con id ${idForo}`)
+        return resultado.discussions
+    }
+
+    /**
+     * Devuelve las discusiones del foro que fueron modificadas luego
+     * de ultima_modificiacion_desde.
+     * @param {Object[]} entradas
+     * @param {?Date} ultima_modificiacion_desde
+     * @returns {Object[]}
+     */
+    _filtrarDiscusiones(entradas, ultima_modificiacion_desde) {
+        if (!ultima_modificiacion_desde)
+            return entradas
+        return entradas.filter(discusion =>
+            new Date(discusion.timemodified * 1000) >= ultima_modificiacion_desde)
     }
 
     /**
@@ -124,11 +175,16 @@ class ClienteMoodle {
 }
 
 /**
+ * @param {Object} args
+ * @param args.url {string}
+ * @param args.token {?string}
+ * @param args.usuario {?string}
+ * @param args.clave {?string}
  * @returns {Promise<ClienteMoodle>}
  */
 const build = async (args) => {
     const cliente = new ClienteMoodle(args)
-    await cliente._init()
+    await cliente.init()
     return cliente
 }
 
