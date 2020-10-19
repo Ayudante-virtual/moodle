@@ -21,7 +21,7 @@ app.put('/v1/cliente/:idCliente/buscador', async (req, res) => {
 
     let cliente;
     try {
-        cliente = await ClienteMoodle.build({url, token, usuarios: user, clave: password})
+        cliente = await ClienteMoodle.build({url, token, usuario: user, clave: password})
         if (!await cliente.existeForo(idForo)) throw new ForoInexistenteError(`No existe el foro con id ${idForo}`)
     } catch (e) {
         return res.status(400).send({
@@ -31,7 +31,10 @@ app.put('/v1/cliente/:idCliente/buscador', async (req, res) => {
         })
     }
 
-    res.send({status: "ok"})
+    res.send({
+        status: "200",
+        message: "ok"
+    })
 })
 
 app.post('/v1/buscadores-foro-moodle/:idBuscador/refresco', async (req, res) => {
