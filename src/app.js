@@ -1,6 +1,7 @@
 import express from "express"
-import ClienteMoodle from "./moodle/ClienteMoodle";
+import buildMoodleConnection from "./moodle/MoodleConnection";
 import ForoInexistenteError from "./utils/ForoInexistenteError";
+import Cliente from "./model/Cliente";
 
 const app = express();
 
@@ -21,8 +22,7 @@ app.put('/v1/cliente/:idCliente/buscador', async (req, res) => {
 
     let cliente;
     try {
-        cliente = await ClienteMoodle.build({url, token, usuario: user, clave: password})
-        if (!await cliente.existeForo(idForo)) throw new ForoInexistenteError(`No existe el foro con id ${idForo}`)
+        await Cliente.crear(idCliente, url, token, user, password, idForo);
     } catch (e) {
         return res.status(400).send({
             status: 400,

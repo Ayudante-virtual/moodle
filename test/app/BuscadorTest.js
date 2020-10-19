@@ -11,20 +11,22 @@ before(() => {
 
 describe('Buscador', () => {
     describe('Actualizar', () => {
-        it('Devuelve 4040 si no hay id de cliente', () => {
+        it('Devuelve 4040 si no hay id de cliente', (done) => {
             chai.request(app)
                 .put('/v1/cliente//buscador')
                 .end((err, res) => {
                     expect(res).to.have.status(404)
+                    done()
                 })
         })
 
-        it('Devuelve un error si no se provee la url', () => {
+        it('Devuelve un error si no se provee la url', (done) => {
             chai.request(app)
                 .put('/v1/cliente/T03659754/buscador')
                 .end((err, res) => {
                     expect(res).to.have.status(400)
                     expect(res.body).to.have.property('error').to.equal('ArgumentoRequeridoError')
+                    done()
                 })
         })
 

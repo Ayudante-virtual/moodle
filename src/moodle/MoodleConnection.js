@@ -8,14 +8,18 @@ import EntradaMoodle from "./EntradaMoodle"
 import ForoInexistenteError from "../utils/ForoInexistenteError"
 import ServidorMoodleNoDisponibleError from "../utils/ServidorMoodleNoDisponibleError"
 import AutenticacionInvalidaError from "../utils/AutenticacionInvalidaError"
+import ConexionNoInicializadaError from "../utils/ConexionNoInicializadaError";
 
 
 /**
  * Cliente de Moodle para obtener posts de foros.
  */
-class ClienteMoodle {
+export class MoodleConnection {
     _moodle
-    _config
+    _url
+    _token
+    _usuario
+    _clave
 
     /**
      * Se debe llamar a init antes de realizar otra acción.
@@ -32,13 +36,10 @@ class ClienteMoodle {
         if (!token && !(usuario && clave))
             throw new ArgumentoRequeridoError('Se debe proporcionar el token o (el usuario y la clave)')
 
-        this._config = {wwwroot: url}
-        if (token) {
-            this._config.token = token
-        } else {
-            this._config.username = usuario
-            this._config.password = clave
-        }
+        this._url = url
+        this._token = token
+        this._usuario = usuario
+        this._clave = clave
     }
 
     /**
@@ -48,7 +49,7 @@ class ClienteMoodle {
      */
     async init() {
         try {
-            this._moodle = await moodle_client.init(this._config)
+            this._moodle = await moodle_client.init(this._getMoodleConfig())
             await this._testConnection()
         } catch (e) {
             if (e.name === 'RequestError')
@@ -57,6 +58,23 @@ class ClienteMoodle {
                 throw new AutenticacionInvalidaError('No fue posible autenticarse a Moodle')
             throw e
         }
+    }
+
+    /**
+     * Devuelve la configuración necesario para inicial el cliente de
+     * moodle.
+     * @returns {Object}
+     * @private
+     */
+    _getMoodleConfig() {
+        const config = {wwwroot: this._url}
+        if (this._token) {
+            config.token = this._token
+        } else {
+            config.username = this._usuario
+            config.password = this._clave
+        }
+        return config
     }
 
     /**
@@ -75,11 +93,21 @@ class ClienteMoodle {
     }
 
     /**
+     * Valida que la conexión haya sido inicializada, eleva una
+     * excepción en caso contrario.
+     * @private
+     */
+    _validarInicializacion() {
+        if(!this._moodle) throw new ConexionNoInicializadaError('La conexión debe ser inicializada antes de usar el cliente')
+    }
+
+    /**
      * Devuelve true si existe el foro, false en caso contrario.
      * @param idForo
      * @returns {Promise<boolean>}
      */
     async existeForo(idForo) {
+        this._validarInicializacion()
         if (!idForo) throw new ArgumentoRequeridoError('El id del foro es requerido')
 
         try {
@@ -98,9 +126,9 @@ class ClienteMoodle {
      * @param {?Date} ultima_modificiacion_desde devuelve las entradas
      * que fueron modificadas desde dicha fecha.
      * @returns {Promise<EntradaMoodle[]>}
-     * @private
      */
     async getEntradasDeForo(idForo, ultima_modificiacion_desde = null) {
+        this._validarInicializacion()
         let discusiones = await this._getDiscusiones(idForo)
         discusiones = this._filtrarDiscusiones(
             discusiones,
@@ -200,12 +228,12 @@ class ClienteMoodle {
  * @param args.token {?string}
  * @param args.usuario {?string}
  * @param args.clave {?string}
- * @returns {Promise<ClienteMoodle>}
+ * @returns {Promise<MoodleConnection>}
  */
-const build = async (args) => {
-    const cliente = new ClienteMoodle(args)
+const buildMoodleConnection = async (args) => {
+    const cliente = new MoodleConnection(args)
     await cliente.init()
     return cliente
 }
 
-export default {build}
+export default buildMoodleConnection

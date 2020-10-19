@@ -1,11 +1,11 @@
-import ClienteMoodle from "./ClienteMoodle";
+import buildMoodleConnection from "./MoodleConnection";
 import BuscadorMoodle from "./BuscadorMoodle";
 
 /**
  * @returns {Promise<BuscadorMoodle>}
  */
 export default async () => {
-    const cliente = await ClienteMoodle.build({
+    const cliente = await buildMoodleConnection({
         url: process.env.MOODLE_URL,
         usuario: process.env.MOODLE_USER,
         clave: process.env.MOODLE_PASSWORD,
