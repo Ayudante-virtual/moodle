@@ -62,8 +62,29 @@ describe('Cliente Moodle', () => {
         });
     });
 
+    let cliente;
+    beforeEach(async () => {
+        cliente = await ClienteMoodle.build({
+            url: process.env.MOODLE_URL,
+            token: process.env.MOODLE_TOKEN
+        })
+    })
+
+    describe('Existe foro', () => {
+        it('Devuele true si el foro existe', async () => {
+            return cliente.existeForo(1).should.eventually.be.true()
+        })
+
+        it('Devuele false si el foro no existe', async () => {
+            return cliente.existeForo(100).should.eventually.be.false()
+        })
+
+        it('Devuele false si el foro es invalido', async () => {
+            return cliente.existeForo(-1).should.eventually.be.false()
+        })
+    })
+
     describe('Leer foro', function () {
-        let cliente;
         let consulta_sin_respuesta;
         let segunda_consulta;
         let consulta_de_prueba;
@@ -71,11 +92,6 @@ describe('Cliente Moodle', () => {
         this.timeout(3000)
 
         beforeEach(async () => {
-            cliente = await ClienteMoodle.build({
-                url: process.env.MOODLE_URL,
-                token: process.env.MOODLE_TOKEN
-            })
-
             consulta_sin_respuesta = new EntradaMoodle({
                 id: 7,
                 asunto: 'Consulta sin respuesta',

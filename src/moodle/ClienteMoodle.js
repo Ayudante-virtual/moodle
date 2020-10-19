@@ -75,6 +75,22 @@ class ClienteMoodle {
     }
 
     /**
+     * Devuelve true si existe el foro, false en caso contrario.
+     * @param idForo
+     * @returns {Promise<boolean>}
+     */
+    async existeForo(idForo) {
+        try {
+            await this._getDiscusiones(idForo, {page: 0, perpage: 1})
+        } catch (e) {
+            if(e.name === 'ForoInexistenteError')
+                return false;
+            throw e;
+        }
+        return true;
+    }
+
+    /**
      * Devuelve una lista de discusiones de un foro
      * @param {number} idForo
      * @param {?Date} ultima_modificiacion_desde devuelve las entradas
@@ -119,17 +135,19 @@ class ClienteMoodle {
     /**
      * Devuelve las discusiones de un foro.
      * @param idForo
+     * @param {Object} args
      * @returns {Promise<Object[]>}
      * @throws ForoInexistenteError
      * @throws Error
      * @private
      */
-    async _getDiscusiones(idForo) {
+    async _getDiscusiones(idForo, args = {}) {
         const resultado = await this._moodle.call({
             wsfunction: "mod_forum_get_forum_discussions_paginated",
             method: "GET",
             args: {
                 forumid: idForo,
+                ...args
             }
         })
         if (resultado.errorcode === 'invalidrecord')

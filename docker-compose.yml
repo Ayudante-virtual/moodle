@@ -27,6 +27,12 @@ services:
     depends_on:
       - mariadb
 
+  sonic:
+    image: valeriansaliou/sonic:v1.3.0
+    volumes:
+      - ./config.cfg:/etc/sonic.cfg
+      - sonic_data:/var/lib/sonic/store/
+
   node:
     build:
       context: .
@@ -40,3 +46,4 @@ volumes:
   mariadb_data:
   moodle_data:
   moodledata_data:
+  sonic_data:
