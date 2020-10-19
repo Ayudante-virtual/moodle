@@ -77,10 +77,16 @@ describe('Cliente Moodle', () => {
 
         it('Devuele false si el foro no existe', async () => {
             return cliente.existeForo(100).should.eventually.be.false()
-        })
+        });
 
-        it('Devuele false si el foro es invalido', async () => {
-            return cliente.existeForo(-1).should.eventually.be.false()
+        [-1, '-1', 'otra', ''].map(valor =>
+            it('Devuele false si el foro es invalido', async () => {
+                return cliente.existeForo(-1).should.eventually.be.false()
+            })
+        )
+
+        it('Eleva una excepcion si no se provee el foro', async () => {
+            return cliente.existeForo().should.be.rejectedWith(ArgumentoRequeridoError)
         })
     })
 

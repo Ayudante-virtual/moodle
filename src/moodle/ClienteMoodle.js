@@ -80,10 +80,12 @@ class ClienteMoodle {
      * @returns {Promise<boolean>}
      */
     async existeForo(idForo) {
+        if (!idForo) throw new ArgumentoRequeridoError('El id del foro es requerido')
+
         try {
             await this._getDiscusiones(idForo, {page: 0, perpage: 1})
         } catch (e) {
-            if(e.name === 'ForoInexistenteError')
+            if (e.name === 'ForoInexistenteError')
                 return false;
             throw e;
         }

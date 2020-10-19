@@ -35,29 +35,6 @@ app.get('/v1/consultas', async (req, res) => {
     res.status(200).send(respuestas)
 })
 
-// app.post('/v1/cliente/:idCliente', async (req, res) => {
-//
-// })
-//
-// app.put('/v1/cliente/:idCliente/buscador-foro-moodle/:idBuscador', async (req, res) => {
-//     const {idCliente, idBuscador} = req.params
-//     console.log('idCliente', idCliente)
-//     console.log('idBuscador', idBuscador)
-//     const {url, token, user, password, idForo} = req.body
-//     const cliente = await ClienteMoodle.build({url, token, usuarios: user, clave: password})
-//     cliente.getEntradasDeForo(idForo)
-//     res.send(req.body)
-// })
-//
-// app.get('/v1/cliente/:idCliente/consultas', async (req, res) => {
-//
-// })
-//
-// app.post('/v1/buscadores-foro-moodle/:idBuscador/refresco', async (req, res) => {
-//     console.log('desde', req.body.desde) // Actualizar los que tienen una modificación desde
-// })
-//
-//
 app.listen(process.env.PORT, () => {
     console.log('App iniciada')
 })
